@@ -66,17 +66,23 @@ body {
     z-index: 20;
 }
 
-h1 {
-    font-size: 5rem;
+.seq-text {
+    font-size: 4rem;
     margin: 0;
+    position: absolute;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
     background: linear-gradient(to bottom, #ffffff, #e0b0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    opacity: 0; /* Hidden initially, will fade in */
+    opacity: 0; /* Hidden initially */
+    pointer-events: none;
 }
 
-/* Neon Glow Animation for the MVP text */
-@keyframes neon-glow {
+/* Neon Glow Animation */
+@keyframes neon-glow-seq {
     0% {
         opacity: 0;
         filter: drop-shadow(0 0 0px rgba(224, 176, 255, 0));
@@ -87,8 +93,17 @@ h1 {
     }
 }
 
-.neon-text {
-    animation: neon-glow 3s forwards;
+@keyframes fade-out {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.seq-in {
+    animation: neon-glow-seq 2s forwards;
+}
+
+.seq-out {
+    animation: fade-out 1.5s forwards !important;
 }
 
 canvas {

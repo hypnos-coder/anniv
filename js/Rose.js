@@ -11,7 +11,13 @@ export function createRose(scene) {
 
     // Bloom (Lavender Rose)
     const bloomGroup = new THREE.Group();
-    const petalMat = new THREE.MeshPhongMaterial({ color: 0xba87d1, shininess: 5 }); // Lavender color
+    const petalMat = new THREE.MeshPhysicalMaterial({ 
+        color: 0xba87d1, 
+        metalness: 0.1, 
+        roughness: 0.8,
+        clearcoat: 0.5,
+        clearcoatRoughness: 0.3
+    }); 
     
     for(let i=0; i<6; i++) {
         const petalGeo = new THREE.SphereGeometry(0.4, 8, 8);

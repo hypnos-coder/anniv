@@ -27,6 +27,17 @@ export function initScene() {
     innerLight.position.set(0, 1.5, 0);
     scene.add(innerLight);
 
+    // Bloom Setup
+    const renderScene = new THREE.RenderPass(scene, camera);
+    const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    bloomPass.threshold = 0.2; // Only bright things glow
+    bloomPass.strength = 1.0; 
+    bloomPass.radius = 0.5;
+
+    const composer = new THREE.EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+
     // Particles
     const particles = createParticleSystem(scene);
 
@@ -34,9 +45,10 @@ export function initScene() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    return { scene, camera, renderer, innerLight, particles };
+    return { scene, camera, renderer, composer, innerLight, particles };
 }
 
 function createHeartTexture() {
