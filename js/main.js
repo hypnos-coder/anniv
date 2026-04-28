@@ -4,10 +4,12 @@ import { createGiftBox } from './GiftBox.js';
 import { createRose } from './Rose.js';
 
 let scene, camera, renderer, innerLight, particles;
-let giftBoxGroup, lid;
+let giftBoxGroup, lid, boxMeshes, baseRibbons;
 let roses = [];
 let isOpened = false;
 let clock = new THREE.Clock();
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 function init() {
     const setup = initScene();
@@ -20,14 +22,25 @@ function init() {
     const giftBoxObj = createGiftBox(scene);
     giftBoxGroup = giftBoxObj.giftBox;
     lid = giftBoxObj.lid;
+    boxMeshes = giftBoxObj.allMeshes;
+    baseRibbons = giftBoxObj.baseRibbons;
 
     // Initial fade in
     setTimeout(() => {
         document.getElementById('topTitle').style.opacity = '1';
     }, 500);
 
-    // Bind click event
+    // Click on the label still works as a fallback
     document.getElementById('interactionHint').addEventListener('click', openGift);
+
+    // Click anywhere on the canvas — if it hits the gift box, open it
+    renderer.domElement.addEventListener('click', (e) => {
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObjects(boxMeshes);
+        if (hits.length > 0) openGift();
+    });
 
     animate();
 }
@@ -44,6 +57,9 @@ function openGift() {
     // Add neon glow class to the text
     document.getElementById('hbdText').classList.add('neon-text');
 
+    // Hide the base ribbons so there's no residue inside the open box
+    baseRibbons.forEach(r => { r.visible = false; });
+
     // Create lavender roses
     for(let i=0; i<20; i++) {
         roses.push(createRose(scene));
@@ -59,13 +75,11 @@ function animate() {
         giftBoxGroup.position.y = Math.sin(time) * 0.2 - 1; // centered at -1
         giftBoxGroup.rotation.y += 0.005; // Gentle rotation like original
     } else {
-        // Lid flies off
-        if (lid.position.y < 10) { 
-            lid.position.y += 0.15; 
-            lid.rotation.x += 0.05;
-            lid.rotation.z += 0.02;
-            lid.scale.multiplyScalar(0.99); // Shrink it slightly as it flies away like original
-        }
+        // Lid flies completely off the screen (no cap — just keep going)
+        lid.position.y += 0.2;
+        lid.position.x += 0.05;
+        lid.rotation.x += 0.06;
+        lid.rotation.z += 0.025;
 
         // Increase inner light intensity
         if (innerLight.intensity < 2) {
